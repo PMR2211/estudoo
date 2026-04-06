@@ -1,0 +1,568 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Guia de Estudos – Flashcards &amp; Simulado</title>
+  <!--
+    Este arquivo apresenta flashcards e um simulado interativo para estudar
+    Processos de Desenvolvimento de Software, Metodologias Ágeis, Redes de Computadores e
+    Segurança da Informação na Nuvem.  
+    Há duas abas principais para alternar entre os temas (Redes &amp; Segurança e Processos &amp; Ágil),
+    e, dentro de cada uma, dois modos de estudo: Flashcards e Simulado.  
+    O conteúdo foi extraído exclusivamente das anotações e slides fornecidos, sem
+    consulta a fontes externas. Todo o código é auto‑contido para uso offline.
+  -->
+  <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=NfJblIMh90E1m7UO6wKG-qPGBvnq26zcrdjZFOjONSrBN5guiuvYfNE7igsPFHhho3FWFhuUGB5czS2dTvqiDiYiWsxNsj1Ts5XfBtyy7awIcuqFLgM6nTEflRpoFLI8ojDrWstCBo_YUcBLYFuUX2gmeP7NTGOOdYKJ5hw09mvbC5IExU23sRYp9bAUPyQWo9iQ-63XALMrFxftHzWhtASNm0jb4zeHPC899Qi5PdVZhHVTxZpKbs0jLupARr-Q" charset="UTF-8"></script><style>
+    :root {
+      --bg: #07112d;
+      --surface: #0e1a3c;
+      --surface2: #192d5c;
+      --accent-redes: #00bcd4;
+      --accent-software: #e91e63;
+      --text: #e1e8ff;
+      --muted: #8da2ce;
+      --border: rgba(255,255,255,0.12);
+    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
+    body {
+      background: var(--bg);
+      color: var(--text);
+      font-family: Arial, Helvetica, sans-serif;
+      min-height: 100vh;
+      overflow-x: hidden;
+    }
+    header {
+      text-align: center;
+      padding: 32px 20px 16px;
+    }
+    header h1 {
+      font-size: 2.2rem;
+      font-weight: 700;
+    }
+    header p {
+      margin-top: 6px;
+      color: var(--muted);
+      font-size: .9rem;
+    }
+    /* Tabs: tópicos principais */
+    .topic-switch {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin: 0 20px 24px;
+    }
+    .ts-btn {
+      padding: 11px 26px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .ts-btn.active {
+      color: var(--bg);
+    }
+    .ts-btn.redes.active {
+      background: var(--accent-redes);
+      border-color: var(--accent-redes);
+    }
+    .ts-btn.software.active {
+      background: var(--accent-software);
+      border-color: var(--accent-software);
+    }
+    /* Subtabs: flashcards vs simulado */
+    .sub-tabs {
+      display: flex;
+      justify-content: center;
+      gap: 10px;
+      flex-wrap: wrap;
+      margin-bottom: 20px;
+    }
+    .sub-btn {
+      padding: 9px 22px;
+      border-radius: 20px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--muted);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .sub-btn.active {
+      color: var(--bg);
+    }
+    .sub-btn.redes.active {
+      background: var(--accent-redes);
+      border-color: var(--accent-redes);
+    }
+    .sub-btn.software.active {
+      background: var(--accent-software);
+      border-color: var(--accent-software);
+    }
+    /* Panel wrapper */
+    .topic {
+      display: none;
+      padding: 0 20px 40px;
+    }
+    .topic.active { display: block; }
+    .panel {
+      display: none;
+      animation: fadeIn .3s ease;
+    }
+    .panel.active { display: block; }
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+    /* Flashcard Styles */
+    .flashcard-container {
+      perspective: 1000px;
+      max-width: 600px;
+      margin: 0 auto 30px;
+      cursor: pointer;
+    }
+    .flashcard {
+      position: relative;
+      width: 100%;
+      height: 260px;
+      border-radius: 18px;
+      background: var(--surface2);
+      border: 1px solid var(--border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+      padding: 30px;
+      transition: transform .6s;
+      transform-style: preserve-3d;
+    }
+    .flashcard.flipped { transform: rotateY(180deg); }
+    .flashcard-face {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      backface-visibility: hidden;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+    }
+    .flashcard .front {
+      color: var(--text);
+    }
+    .flashcard .back {
+      transform: rotateY(180deg);
+      color: var(--text);
+    }
+    .flashcard-label {
+      font-size: .7rem;
+      text-transform: uppercase;
+      letter-spacing: 1px;
+      margin-bottom: 12px;
+    }
+    .flashcard-question {
+      font-size: 1.1rem;
+      font-weight: 700;
+      line-height: 1.4;
+    }
+    .flashcard-answer {
+      font-size: 1rem;
+      line-height: 1.5;
+    }
+    .fc-nav {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      max-width: 600px;
+      margin: 0 auto 16px;
+    }
+    .fc-nav button {
+      padding: 8px 16px;
+      border-radius: 16px;
+      border: 1px solid var(--border);
+      background: var(--surface);
+      color: var(--text);
+      font-weight: 600;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .fc-nav button:disabled {
+      opacity: .3;
+      cursor: not-allowed;
+    }
+    .fc-nav span {
+      font-size: .85rem;
+      color: var(--muted);
+    }
+    /* Quiz Styles */
+    .quiz-container {
+      max-width: 700px;
+      margin: 0 auto;
+      background: var(--surface);
+      border: 1px solid var(--border);
+      border-radius: 18px;
+      padding: 26px;
+    }
+    .quiz-question {
+      font-size: 1.1rem;
+      font-weight: 700;
+      margin-bottom: 18px;
+    }
+    .quiz-options {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .quiz-options button {
+      padding: 12px 16px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      background: var(--surface2);
+      color: var(--text);
+      font-size: .95rem;
+      text-align: left;
+      cursor: pointer;
+      transition: all .2s;
+    }
+    .quiz-options button:hover:not([disabled]) {
+      border-color: var(--accent-redes);
+    }
+    .quiz-options button.correct {
+      border-color: #4caf50;
+      background: rgba(76,175,80,0.15);
+      color: #66bb6a;
+    }
+    .quiz-options button.wrong {
+      border-color: #f44336;
+      background: rgba(244,67,54,0.15);
+      color: #e57373;
+    }
+    .quiz-next {
+      margin-top: 20px;
+      width: 100%;
+      padding: 12px;
+      border-radius: 12px;
+      border: none;
+      background: var(--accent-redes);
+      color: var(--bg);
+      font-weight: 700;
+      cursor: pointer;
+      display: none;
+      transition: all .2s;
+    }
+    .quiz-next.show { display: block; }
+    .quiz-score {
+      text-align: center;
+      padding: 20px;
+    }
+    .quiz-score h3 {
+      font-size: 2rem;
+      margin-bottom: 8px;
+    }
+    .quiz-score p {
+      font-size: 1rem;
+      color: var(--muted);
+    }
+
+    /* Botão "Refazer" dentro do painel de pontuação final */
+    .quiz-score .quiz-next {
+      display: inline-block; /* sempre visível dentro da pontuação */
+      margin-top: 16px;
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>Flashcards &amp; Simulado</h1>
+    <p>Estude Redes de Computadores, Segurança em Nuvem, Processos de Desenvolvimento e Metodologias Ágeis</p>
+  </header>
+  <!-- Topic switch buttons -->
+  <div class="topic-switch">
+    <button class="ts-btn redes active" onclick="switchTopic('redes')">Redes &amp; Segurança</button>
+    <button class="ts-btn software" onclick="switchTopic('software')">Processos &amp; Ágil</button>
+  </div>
+  <!-- Topic: Redes & Segurança -->
+  <div id="topic-redes" class="topic active">
+    <!-- Sub-tabs for this topic -->
+    <div class="sub-tabs">
+      <button class="sub-btn redes active" onclick="switchPanel('redes','flashcards')">Flashcards</button>
+      <button class="sub-btn redes" onclick="switchPanel('redes','quiz')">Simulado</button>
+    </div>
+    <!-- Flashcards Panel -->
+    <div id="redes-flashcards" class="panel active">
+      <div class="flashcard-container" onclick="flipCard('redes')">
+        <div id="flashcard-redes" class="flashcard">
+          <div class="flashcard-face front">
+            <div class="flashcard-label">Redes</div>
+            <div class="flashcard-question" id="fc-redes-q"></div>
+          </div>
+          <div class="flashcard-face back">
+            <div class="flashcard-label">Resposta</div>
+            <div class="flashcard-answer" id="fc-redes-a"></div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-nav">
+        <button id="fc-redes-prev" onclick="navCard('redes',-1)" disabled>&larr; Anterior</button>
+        <span id="fc-redes-counter">1 / 1</span>
+        <button id="fc-redes-next" onclick="navCard('redes',1)">&rarr; Próximo</button>
+      </div>
+    </div>
+    <!-- Quiz Panel -->
+    <div id="redes-quiz" class="panel">
+      <div id="quiz-redes" class="quiz-container">
+        <div class="quiz-question" id="quiz-redes-q"></div>
+        <div class="quiz-options" id="quiz-redes-options"></div>
+        <button class="quiz-next" id="quiz-redes-next" onclick="nextQuiz('redes')">Próxima</button>
+      </div>
+      <div id="quiz-redes-score" class="quiz-score" style="display:none;"></div>
+    </div>
+  </div>
+  <!-- Topic: Processos & Ágil -->
+  <div id="topic-software" class="topic">
+    <div class="sub-tabs">
+      <button class="sub-btn software active" onclick="switchPanel('software','flashcards')">Flashcards</button>
+      <button class="sub-btn software" onclick="switchPanel('software','quiz')">Simulado</button>
+    </div>
+    <div id="software-flashcards" class="panel active">
+      <div class="flashcard-container" onclick="flipCard('software')">
+        <div id="flashcard-software" class="flashcard">
+          <div class="flashcard-face front">
+            <div class="flashcard-label">Processos</div>
+            <div class="flashcard-question" id="fc-software-q"></div>
+          </div>
+          <div class="flashcard-face back">
+            <div class="flashcard-label">Resposta</div>
+            <div class="flashcard-answer" id="fc-software-a"></div>
+          </div>
+        </div>
+      </div>
+      <div class="fc-nav">
+        <button id="fc-software-prev" onclick="navCard('software',-1)" disabled>&larr; Anterior</button>
+        <span id="fc-software-counter">1 / 1</span>
+        <button id="fc-software-next" onclick="navCard('software',1)">&rarr; Próximo</button>
+      </div>
+    </div>
+    <div id="software-quiz" class="panel">
+      <div id="quiz-software" class="quiz-container">
+        <div class="quiz-question" id="quiz-software-q"></div>
+        <div class="quiz-options" id="quiz-software-options"></div>
+        <button class="quiz-next" id="quiz-software-next" onclick="nextQuiz('software')">Próxima</button>
+      </div>
+      <div id="quiz-software-score" class="quiz-score" style="display:none;"></div>
+    </div>
+  </div>
+  <script>
+    // Dados dos flashcards
+    const flashcards = {
+      redes: [
+        { q: 'O que é uma topologia de rede?', a: 'É a forma como dispositivos são organizados e conectados (física e logicamente) para permitir a comunicação.' },
+        { q: 'Qual a diferença entre topologia física e lógica?', a: 'A topologia física descreve cabos e conectores reais; a topologia lógica descreve o fluxo de dados.' },
+        { q: 'Como funciona a topologia em barramento?', a: 'Todos os dispositivos compartilham um único cabo. O protocolo CSMA/CD controla as colisões de transmissões.' },
+        { q: 'Como funciona a topologia em anel?', a: 'Os dispositivos formam um laço. Um token circula e só quem o possui pode transmitir, evitando colisões.' },
+        { q: 'Cite uma vantagem do barramento.', a: 'Tem baixo custo e é simples de instalar em pequenas redes.' },
+        { q: 'Cite uma vantagem do anel.', a: 'Não há colisões e o sinal é regenerado a cada salto.' },
+        { q: 'Quais são os principais meios de transmissão?', a: 'Cabos de cobre (par trançado e coaxial), fibra óptica e ondas eletromagnéticas (Wi‑Fi, Bluetooth, 4G/5G, satélite).' },
+        { q: 'Quais são boas práticas de segurança na nuvem?', a: 'Implementar gestão de identidade e acesso (IAM), criptografar dados, monitorar continuamente e fazer backups.' }
+      ],
+      software: [
+        { q: 'O que são requisitos funcionais?', a: 'São funções ou serviços que o sistema deve realizar, por exemplo login ou envio de notificações.' },
+        { q: 'O que são requisitos não funcionais?', a: 'São restrições de desempenho, segurança, usabilidade ou compatibilidade que o sistema deve obedecer.' },
+        { q: 'O que significa a sigla SMART em requisitos?', a: 'Os requisitos devem ser específicos, mensuráveis, alcançáveis, relevantes e temporais.' },
+        { q: 'O que é elicitar requisitos?', a: 'É descobrir necessidades e problemas por meio de conversas, observação e análise, e não apenas perguntar.' },
+        { q: 'Quais são as principais dificuldades na elicitação?', a: 'Barreiras de comunicação, vocabulário técnico, viés de confirmação e fixação funcional.' },
+        { q: 'Quais são os valores do Manifesto Ágil?', a: 'Indivíduos e interações; software funcionando; colaboração com o cliente; responder a mudanças.' },
+        { q: 'Como o ágil difere do modelo cascata?', a: 'O ágil trabalha em ciclos curtos com protótipos e feedback contínuo, enquanto o cascata segue etapas longas e sequenciais.' },
+        { q: 'Por que testar software desde o início?', a: 'Porque detectar defeitos precocemente reduz o custo de correção e aumenta a confiança no sistema.' }
+      ]
+    };
+    // Dados dos quizzes
+    const quizzes = {
+      redes: [
+        {
+          q: 'Qual afirmação descreve corretamente a diferença entre topologia física e lógica?',
+          options: [
+            'Física representa o fluxo de dados e lógica representa cabos e conectores.',
+            'Física representa cabos e conectores; lógica representa o fluxo de dados.',
+            'Física representa software e lógica representa hardware.'
+          ],
+          answer: 1
+        },
+        {
+          q: 'Na topologia em barramento, qual protocolo evita colisões?',
+          options: ['Token Ring', 'CSMA/CD', 'Bluetooth'],
+          answer: 1
+        },
+        {
+          q: 'Qual é uma vantagem da topologia em anel?',
+          options: ['Baixo custo', 'Ausência de colisões', 'Facilidade de expansão'],
+          answer: 1
+        },
+        {
+          q: 'Uma boa prática de segurança na nuvem é:',
+          options: ['Ignorar compliance', 'Manter dados sem criptografia', 'Implementar controle de acesso e criptografia'],
+          answer: 2
+        }
+      ],
+      software: [
+        {
+          q: 'Qual das alternativas representa um requisito não funcional?',
+          options: [
+            'O sistema deve permitir cadastro de usuários.',
+            'O sistema deve suportar 1000 usuários simultâneos.',
+            'O sistema deve enviar e‑mail de confirmação.'
+          ],
+          answer: 1
+        },
+        {
+          q: 'Elicitação de requisitos significa:',
+          options: [
+            'Escrever documentação técnica.',
+            'Descobrir necessidades e problemas dos usuários.',
+            'Programar a solução.'
+          ],
+          answer: 1
+        },
+        {
+          q: 'Qual valor do Manifesto Ágil enfatiza colaboração?',
+          options: ['Processos e ferramentas', 'Documentação abrangente', 'Colaboração com o cliente'],
+          answer: 2
+        },
+        {
+          q: 'Testes devem ser realizados:',
+          options: [
+            'Apenas ao final do projeto.',
+            'Logo no início e ao longo de todo o desenvolvimento.',
+            'Somente se houver tempo.'
+          ],
+          answer: 1
+        }
+      ]
+    };
+    // Estado das flashcards e quiz
+    let fcIndex = { redes: 0, software: 0 };
+    let fcFlipped = { redes: false, software: false };
+    let quizIndex = { redes: 0, software: 0 };
+    let quizScore = { redes: 0, software: 0 };
+    // Inicialização
+    function init() {
+      // Carregar primeira carta de cada tema
+      updateFlashcard('redes');
+      updateFlashcard('software');
+      // Inicializar quiz
+      loadQuiz('redes');
+      loadQuiz('software');
+    }
+    // Alternar tema principal
+    function switchTopic(topic) {
+      document.querySelectorAll('.ts-btn').forEach(btn => btn.classList.remove('active'));
+      document.querySelector('.ts-btn.' + (topic === 'redes' ? 'redes' : 'software')).classList.add('active');
+      document.querySelectorAll('.topic').forEach(t => t.classList.remove('active'));
+      document.getElementById('topic-' + topic).classList.add('active');
+    }
+    // Alternar painel (flashcards ou quiz) dentro de um tema
+    function switchPanel(topic, panel) {
+      // Alternar botões
+      const subButtons = document.querySelectorAll('#topic-' + topic + ' .sub-btn.' + topic);
+      subButtons.forEach(btn => btn.classList.remove('active'));
+      document.querySelector('#topic-' + topic + ' .sub-btn.' + topic + '[onclick*="' + panel + '"]').classList.add('active');
+      // Alternar painéis
+      const panels = document.querySelectorAll('#topic-' + topic + ' .panel');
+      panels.forEach(p => p.classList.remove('active'));
+      document.getElementById(topic + '-' + panel).classList.add('active');
+    }
+    // Atualiza conteúdo do flashcard
+    function updateFlashcard(topic) {
+      const card = flashcards[topic][fcIndex[topic]];
+      document.getElementById('fc-' + topic + '-q').textContent = card.q;
+      document.getElementById('fc-' + topic + '-a').textContent = card.a;
+      document.getElementById('fc-' + topic + '-counter').textContent = (fcIndex[topic] + 1) + ' / ' + flashcards[topic].length;
+      // Reset flip state
+      fcFlipped[topic] = false;
+      document.getElementById('flashcard-' + topic).classList.remove('flipped');
+      // Atualiza botões
+      document.getElementById('fc-' + topic + '-prev').disabled = (fcIndex[topic] === 0);
+      document.getElementById('fc-' + topic + '-next').disabled = (fcIndex[topic] === flashcards[topic].length - 1);
+    }
+    // Navegação das flashcards
+    function navCard(topic, delta) {
+      fcIndex[topic] += delta;
+      if (fcIndex[topic] < 0) fcIndex[topic] = 0;
+      if (fcIndex[topic] >= flashcards[topic].length) fcIndex[topic] = flashcards[topic].length - 1;
+      updateFlashcard(topic);
+    }
+    // Flip card
+    function flipCard(topic) {
+      fcFlipped[topic] = !fcFlipped[topic];
+      document.getElementById('flashcard-' + topic).classList.toggle('flipped');
+    }
+    // Inicialização do quiz
+    function loadQuiz(topic) {
+      quizIndex[topic] = 0;
+      quizScore[topic] = 0;
+      document.getElementById('quiz-' + topic + '-score').style.display = 'none';
+      document.getElementById('quiz-' + topic).style.display = 'block';
+      showQuestion(topic);
+    }
+    // Exibir pergunta atual
+    function showQuestion(topic) {
+      const qObj = quizzes[topic][quizIndex[topic]];
+      const qElem = document.getElementById('quiz-' + topic + '-q');
+      const optionsElem = document.getElementById('quiz-' + topic + '-options');
+      const nextBtn = document.getElementById('quiz-' + topic + '-next');
+      qElem.textContent = (quizIndex[topic] + 1) + '. ' + qObj.q;
+      // Limpar opções
+      optionsElem.innerHTML = '';
+      qObj.options.forEach((opt, idx) => {
+        const btn = document.createElement('button');
+        btn.textContent = opt;
+        btn.onclick = () => handleAnswer(topic, idx);
+        optionsElem.appendChild(btn);
+      });
+      nextBtn.style.display = 'none';
+    }
+    // Manipula seleção de resposta
+    function handleAnswer(topic, idx) {
+      const qObj = quizzes[topic][quizIndex[topic]];
+      const optionsButtons = document.querySelectorAll('#quiz-' + topic + '-options button');
+      optionsButtons.forEach((btn, i) => {
+        btn.disabled = true;
+        if (i === qObj.answer) {
+          btn.classList.add('correct');
+        }
+        if (i === idx && i !== qObj.answer) {
+          btn.classList.add('wrong');
+        }
+      });
+      if (idx === qObj.answer) {
+        quizScore[topic]++;
+      }
+      // Mostrar botão próxima
+      const nextBtn = document.getElementById('quiz-' + topic + '-next');
+      nextBtn.style.display = 'block';
+    }
+    // Avançar no quiz
+    function nextQuiz(topic) {
+      quizIndex[topic]++;
+      if (quizIndex[topic] < quizzes[topic].length) {
+        showQuestion(topic);
+      } else {
+        // Mostrar pontuação final
+        document.getElementById('quiz-' + topic).style.display = 'none';
+        const scoreElem = document.getElementById('quiz-' + topic + '-score');
+        const total = quizzes[topic].length;
+        const score = quizScore[topic];
+        scoreElem.innerHTML = `<h3>Você acertou ${score} de ${total}</h3><p>Para melhorar sua nota, revise os flashcards e tente novamente.</p><button class="quiz-next" onclick="loadQuiz('${topic}')">Refazer</button>`;
+        scoreElem.style.display = 'block';
+      }
+    }
+    // Chamar init no carregamento
+    window.addEventListener('DOMContentLoaded', init);
+  </script>
+</body>
+</html>
